@@ -1,6 +1,12 @@
-# VERBALIST
-VERBALIST is a voice-based shopping assistant that understands natural-language commands to manage a shopping list, search products, and provide smart, context-aware suggestions.
+<div align="center">
+  <img src="./frontend/public/logo.png" alt="VERBALIST Logo" width="150" />
 
+  <h1>VERBALIST</h1>
+  
+  <p><strong>Voice Command Shopping Assistant</strong></p>
+
+  <p>VERBALIST is a voice-based shopping assistant that understands natural-language commands to manage a shopping list, search products, and provide smart, context-aware suggestions.</p>
+</div>
 ## Overview
 Shopping applications often require users to manually navigate hierarchies, search bars, and filter menus just to build a simple cart. VERBALIST solves this by introducing a highly reliable voice-first interface. 
 
