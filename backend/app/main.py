@@ -11,7 +11,7 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -44,5 +44,14 @@ def health_check():
     return {
         "status": "ok",
         "service": "verbalist"
+    }
+
+@app.get("/", tags=["System"])
+def root():
+    return {
+        "name": "VERBALIST",
+        "message": "Voice Command Shopping Assistant API",
+        "status": "running",
+        "docs": "/docs"
     }
 

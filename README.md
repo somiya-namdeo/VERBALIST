@@ -31,16 +31,16 @@ Users can interact using natural-language speech or text. The system reliably pa
 
 | Feature | Description |
 |---|---|
-| **Voice Input** | High-accuracy Speech-to-Text via Groq's Whisper API using browser-native audio APIs. |
-| **Text Input** | Fallback "Type Instead" functionality sharing the exact same intent processing pipeline as voice. |
-| **Natural-Language Commands** | Parses raw sentences to identify actions (add, remove, update, search). |
-| **Shopping List Management** | Safely adds, updates quantities, and removes items specifically within the active cart context. |
-| **Product Search** | Searches the product catalog directly from natural-language descriptions. |
-| **Quantity Handling** | Intelligently extracts numerical values and units (e.g., "Add 5 apples"). |
-| **Product Recommendations** | Suggests products based on available purchase history and preferences. |
-| **Seasonal Product Suggestions** | Surrounds generic queries with seasonally appropriate alternatives. |
-| **Product Substitutes** | Identifies and suggests valid product substitutes via backend relationships. |
+| **Voice Input & NLP** | High-accuracy Speech-to-Text via Groq's Whisper API using browser-native audio APIs. Parses raw sentences to identify actions (add, remove, update, search). |
 | **Multilingual Voice Support** | Leverages Whisper's native multi-language transcription paired with backend catalog aliases for languages like Hindi. |
+| **Shopping List Management** | Safely adds, updates quantities, and removes items specifically within the active cart context. Automatically handles quantity extraction (e.g., "Add 5 apples"). |
+| **Automatic Categorization** | Items are automatically categorized (e.g., produce, dairy, snacks) based on the comprehensive product catalog metadata. |
+| **Voice-Activated Search** | Searches the product catalog directly from natural-language descriptions. Includes robust filtering for brands, sizes, and price ranges (e.g., "Find toothpaste under $5"). |
+| **Smart Suggestions** | Recommends products based on available purchase history and preferences. |
+| **Seasonal Products** | Surrounds generic queries with seasonally appropriate alternatives. |
+| **Product Substitutes** | Offers valid product alternatives via backend relationships if an exact match isn't ideal. |
+| **UI/UX Optimization** | Features a minimalist interface with real-time visual feedback for voice commands. Built with a mobile/voice-first approach to maximize accessibility and speed. |
+| **Text Input Fallback** | "Type Instead" functionality sharing the exact same intent processing pipeline as voice. |
 
 ## HOW IT WORKS
 
@@ -239,13 +239,27 @@ VERBALIST/
 
 ## SCREENSHOTS
 
-<!-- Add screenshot: Landing Page here -->
+<div align="center">
+  <img src="./screenshots/landing-page.png" alt="Landing Page" width="800" />
+  <p><em>Landing Page</em></p>
 
-<!-- Add screenshot: Voice Assistant here -->
+  <img src="./screenshots/dashboard.png" alt="Dashboard" width="800" />
+  <p><em>Home Dashboard</em></p>
 
-<!-- Add screenshot: Shopping List here -->
+  <img src="./screenshots/voice-1.png" alt="Voice Assistant 1" width="800" />
+  <img src="./screenshots/voice-2.png" alt="Voice Assistant 2" width="800" />
+  <img src="./screenshots/voice-3.png" alt="Voice Assistant 3" width="800" />
+  <p><em>Real-Time Voice Assistant & Visual Feedback</em></p>
 
-<!-- Add screenshot: Product Search here -->
+  <img src="./screenshots/products.png" alt="Products Catalog" width="800" />
+  <p><em>Product Catalog & Search</em></p>
+
+  <img src="./screenshots/cart.png" alt="Shopping List" width="800" />
+  <p><em>Active Shopping List with Categorization</em></p>
+  
+  <img src="./screenshots/history.png" alt="Purchase History" width="800" />
+  <p><em>Purchase History</em></p>
+</div>
 
 ## DEPLOYMENT
 
