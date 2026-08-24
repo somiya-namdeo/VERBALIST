@@ -5,7 +5,7 @@ import json
 class HistoryService:
     @staticmethod
     def get_shopping_history(auth: AuthenticatedUser) -> List[Dict[str, Any]]:
-        response = auth.client.table("shopping_history").select("*").execute()
+        response = auth.client.table("shopping_history").select("*, product:products(*)").eq("user_id", str(auth.user_id)).execute()
         return response.data
 
     @staticmethod

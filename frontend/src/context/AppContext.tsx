@@ -41,6 +41,8 @@ type AppContextType = {
 
 const initialProducts: Product[] = [];
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -49,13 +51,40 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState<boolean>(true);
 
-useEffect(() => {
-    fetch("http://localhost:8000/api/dev/login", { method: "POST" })
+  useEffect(() => {
+    const savedToken = localStorage.getItem("verbalist_token");
+    if (savedToken) {
+      setToken(savedToken);
+      fetch(`${API_BASE}/api/products?size=50`)
+        .then(r => r.json())
+        .then(prodData => {
+          const realProducts = (prodData.items || []).map((p: any) => ({
+            id: p.id,
+            name: p.name,
+            size: p.quantity_value ? `${p.quantity_value}${p.quantity_unit}` : "",
+            category: p.category,
+            price: p.price,
+            originalPrice: p.sale_price || null,
+            discount: p.sale_price ? "SALE" : null,
+            organic: p.is_organic,
+            image: p.image_url || "https://images.unsplash.com/photo-1584473457406-6240486418e9?auto=format&fit=crop&w=200&q=80"
+          }));
+          if (realProducts.length > 0) {
+            setProducts(realProducts);
+          }
+          syncShoppingList(savedToken);
+        })
+        .finally(() => setIsAuthLoading(false));
+      return;
+    }
+
+    fetch(`${API_BASE}/api/dev/login`, { method: "POST" })
       .then(res => res.json())
       .then(data => {
         if (data.access_token) {
+          localStorage.setItem("verbalist_token", data.access_token);
           setToken(data.access_token);
-          fetch("http://localhost:8000/api/products?size=50")
+          fetch(`${API_BASE}/api/products?size=50`)
             .then(r => r.json())
             .then(prodData => {
               const realProducts = (prodData.items || []).map((p: any) => ({
@@ -91,7 +120,7 @@ useEffect(() => {
     const activeToken = customToken || token;
     if (!activeToken) return;
     try {
-      const res = await fetch("http://localhost:8000/api/shopping-list", {
+      const res = await fetch(`${API_BASE}/api/shopping-list`, {
         headers: { "Authorization": `Bearer ${activeToken}` }
       });
       const listData = await res.json();
@@ -108,7 +137,7 @@ useEffect(() => {
             
             if (uniqueMissingIds.length > 0) {
               const fetchPromises = uniqueMissingIds.map(id => 
-                fetch(`http://localhost:8000/api/products/${id}`).then(r => r.ok ? r.json() : null)
+                fetch(`${API_BASE}/api/products/${id}`).then(r => r.ok ? r.json() : null)
               );
               
               const fetchedProducts = await Promise.all(fetchPromises);
@@ -176,7 +205,7 @@ useEffect(() => {
     });
     
     if (token) {
-      fetch("http://localhost:8000/api/shopping-list", {
+      fetch(`${API_BASE}/api/shopping-list`, {
         method: "POST",
         headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ product_id: product.id, quantity: 1 })
@@ -192,14 +221,14 @@ useEffect(() => {
     
     try {
       if (newQuantity <= 0) {
-        const res = await fetch(`http://localhost:8000/api/shopping-list/${item.cartItemId}`, {
+        const res = await fetch(`${API_BASE}/api/shopping-list/${item.cartItemId}`, {
           method: "DELETE",
           headers: { "Authorization": `Bearer ${token}` }
         });
         if (!res.ok) throw new Error("Delete failed");
         await syncShoppingList();
       } else {
-        const res = await fetch(`http://localhost:8000/api/shopping-list/${item.cartItemId}`, {
+        const res = await fetch(`${API_BASE}/api/shopping-list/${item.cartItemId}`, {
           method: "PATCH",
           headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
           body: JSON.stringify({ quantity: newQuantity })
@@ -219,7 +248,7 @@ useEffect(() => {
     
     const newStatus = item.checked ? "active" : "completed";
     try {
-      const res = await fetch(`http://localhost:8000/api/shopping-list/${item.cartItemId}`, {
+      const res = await fetch(`${API_BASE}/api/shopping-list/${item.cartItemId}`, {
         method: "PATCH",
         headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ status: newStatus })

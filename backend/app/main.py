@@ -31,14 +31,33 @@ app.include_router(stt.router, prefix="/api", tags=["Speech To Text"])
 
 @app.post("/api/dev/login", tags=["Dev"])
 def dev_login():
+    """
+    Creates a unique guest user session so that every new client receives
+    an isolated shopping list and history.
+    """
+    import uuid
     from supabase import create_client
     from app.core.config import settings
     try:
-        client = create_client(settings.SUPABASE_URL, settings.SUPABASE_ANON_KEY)
-        res = client.auth.sign_in_with_password({
-            "email": "verbalist_test_user3@gmail.com",
-            "password": "SecurePassword123!"
+        # 1. Generate unique guest credentials
+        guest_email = f"guest_{uuid.uuid4().hex[:12]}@verbalist.app"
+        guest_password = "SecureGuestPassword123!"
+
+        # 2. Use service role to bypass email confirmation requirement
+        service_client = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_ROLE_KEY)
+        service_client.auth.admin.create_user({
+            "email": guest_email,
+            "password": guest_password,
+            "email_confirm": True
         })
+
+        # 3. Sign in to get the JWT token for this specific guest
+        anon_client = create_client(settings.SUPABASE_URL, settings.SUPABASE_ANON_KEY)
+        res = anon_client.auth.sign_in_with_password({
+            "email": guest_email,
+            "password": guest_password
+        })
+        
         return {"access_token": res.session.access_token}
     except Exception as e:
         return {"error": str(e)}
