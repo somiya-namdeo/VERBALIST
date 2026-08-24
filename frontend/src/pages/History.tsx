@@ -1,10 +1,10 @@
-﻿import { Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import { cn } from "../lib/utils";
 import { getProductImage } from "../lib/imageMap";
 import { useAppContext } from "../context/AppContext";
 
-const BASE = "http://localhost:8000";
+const BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
 type HistoryRecord = {
   id: string;

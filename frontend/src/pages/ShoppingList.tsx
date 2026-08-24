@@ -1,14 +1,21 @@
-import { Mic, Plus, Minus, CheckCircle2, Circle, Trash2, List } from "lucide-react";
+import { Mic, Plus, Minus, CheckCircle2, Circle, Trash2, List, ShoppingBag, X } from "lucide-react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { cn, formatCurrency } from "../lib/utils";
 import { useAppContext } from "../context/AppContext";
 
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
 export function ShoppingList() {
-  const { cartItems, updateCartQuantity, toggleCartChecked } = useAppContext();
+  const { cartItems, updateCartQuantity, toggleCartChecked, token, clearCart, syncShoppingList } = useAppContext();
+  const navigate = useNavigate();
 
   const [loadingItems, setLoadingItems] = useState<Set<string>>(new Set());
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  // Review modal state
+  const [showReviewModal, setShowReviewModal] = useState(false);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
 
   const handleUpdateQuantity = async (id: string, delta: number) => {
     setErrorMsg(null);
@@ -42,6 +49,41 @@ export function ShoppingList() {
     }
   };
 
+  /**
+   * Calls POST /api/shopping-list/checkout.
+   * The backend:
+   *   1. Reads this user's active shopping-list items (filtered by user_id).
+   *   2. Bulk-inserts them into shopping_history (each row stamped with user_id).
+   *   3. Only after history INSERT succeeds, bulk-deletes those cart rows.
+   * If the backend returns an error, we do NOT clear the cart and we do NOT navigate.
+   */
+  const handleConfirmPurchase = async () => {
+    if (!token) return;
+    setIsCheckingOut(true);
+    setErrorMsg(null);
+    try {
+      const res = await fetch(`${API_BASE}/api/shopping-list/checkout`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        // Backend failed — keep the cart intact, show the error
+        throw new Error(data.detail || "Purchase failed. Your shopping list has not been changed.");
+      }
+      // Success — clear local cart state and sync then navigate to history
+      clearCart();
+      if (syncShoppingList) syncShoppingList();
+      setShowReviewModal(false);
+      navigate("/history");
+    } catch (e: any) {
+      setErrorMsg(e.message || "Purchase failed. Please try again.");
+      setShowReviewModal(false);
+    } finally {
+      setIsCheckingOut(false);
+    }
+  };
+
   // Group by category
   const categories = Array.from(new Set(cartItems.map(i => i.category)));
   
@@ -59,7 +101,7 @@ export function ShoppingList() {
         <div className="mb-12 flex items-end justify-between">
           <div>
             <h1 className="text-4xl font-semibold tracking-tight text-black mb-2">Shopping List</h1>
-            <p className="text-gray-500">{cartItems.length} items • {checkedCount} checked</p>
+            <p className="text-gray-500">{cartItems.length} items · {checkedCount} checked</p>
           </div>
           <div className="flex space-x-3">
             <button type="button" className="flex items-center space-x-2 rounded-full border border-gray-200 bg-white px-5 py-2.5 text-sm font-medium text-black shadow-sm hover:bg-gray-50">
@@ -162,12 +204,7 @@ export function ShoppingList() {
             </div>
             <button
               type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                alert("Your list is ready for review. This action safely keeps you on the Shopping List page without deleting items or navigating to History.");
-                // Safely stay on the page for review. 
-                // Do not clear the list or navigate to history.
-              }}
+              onClick={() => setShowReviewModal(true)}
               disabled={cartItems.length === 0}
               className="mt-8 w-full rounded-2xl bg-black py-4 text-sm font-semibold text-white hover:bg-gray-800 flex justify-center items-center disabled:opacity-60 transition-colors"
             >
@@ -178,6 +215,68 @@ export function ShoppingList() {
         
       </div>
 
+      {/* Review / Confirm Purchase Modal */}
+      {showReviewModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="relative mx-4 w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl">
+            {/* Close */}
+            <button
+              onClick={() => setShowReviewModal(false)}
+              className="absolute right-5 top-5 rounded-full p-1 text-gray-400 hover:text-gray-700"
+            >
+              <X className="h-5 w-5" />
+            </button>
+
+            {/* Icon + Title */}
+            <div className="mb-6 flex flex-col items-center text-center">
+              <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-black text-white">
+                <ShoppingBag className="h-7 w-7" />
+              </div>
+              <h2 className="text-2xl font-bold text-black">Confirm Purchase</h2>
+              <p className="mt-1 text-sm text-gray-500">
+                {cartItems.length} item{cartItems.length !== 1 ? "s" : ""} will be marked as purchased.
+              </p>
+            </div>
+
+            {/* Item summary */}
+            <div className="mb-6 max-h-52 overflow-y-auto space-y-2">
+              {cartItems.map(item => (
+                <div key={item.id} className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-2.5">
+                  <span className="text-sm font-medium text-black truncate max-w-[60%]">{item.name}</span>
+                  <div className="flex items-center space-x-3 text-sm text-gray-500 shrink-0">
+                    <span>×{item.quantity}</span>
+                    <span className="font-semibold text-black">{formatCurrency(item.price * item.quantity)}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Total */}
+            <div className="mb-6 flex justify-between rounded-2xl bg-gray-50 px-5 py-4">
+              <span className="font-semibold text-black">Total</span>
+              <span className="text-xl font-bold text-black">{formatCurrency(total)}</span>
+            </div>
+
+            {/* Actions */}
+            <div className="flex space-x-3">
+              <button
+                onClick={() => setShowReviewModal(false)}
+                className="flex-1 rounded-2xl border border-gray-200 py-3.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmPurchase}
+                disabled={isCheckingOut}
+                className="flex-1 rounded-2xl bg-black py-3.5 text-sm font-semibold text-white hover:bg-gray-800 disabled:opacity-60 transition-colors"
+              >
+                {isCheckingOut ? "Processing…" : "Confirm Purchase"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {errorMsg && (
         <div className="fixed bottom-6 right-6 z-50 rounded-xl bg-red-500 px-6 py-3 text-sm font-medium text-white shadow-xl">
           {errorMsg}
@@ -186,5 +285,3 @@ export function ShoppingList() {
     </div>
   );
 }
-
-
