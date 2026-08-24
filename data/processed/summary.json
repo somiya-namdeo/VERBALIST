@@ -1,0 +1,23 @@
+{
+  "input_rows": 25768,
+  "output_rows": 24416,
+  "duplicates_removed": 63,
+  "missing_price_count": 2560,
+  "successfully_parsed_quantities": 24608,
+  "quantity_parsing_failures": 1097,
+  "category_distribution": {
+    "other": 11137,
+    "fruits_vegetables": 3293,
+    "pantry": 3044,
+    "stationery": 2233,
+    "personal_care": 1940,
+    "dairy": 1390,
+    "household": 765,
+    "beverages": 352,
+    "snacks": 262
+  },
+  "products_on_sale": 16162,
+  "products_organic": 560,
+  "extracted_brands": 0,
+  "validation_failures": []
+}
