@@ -6,7 +6,7 @@
 </div>
 
 <div align="center">
-  <a href="YOUR_FRONTEND_URL">[ Live Demo ]</a>
+  <a href="https://verbalist.vercel.app">[ Live Demo ]</a>
   <span> &nbsp; | &nbsp; </span>
   <a href="https://verbalist.onrender.com">[ Backend API ]</a>
   <span> &nbsp; | &nbsp; </span>
@@ -263,7 +263,7 @@ VERBALIST/
 
 ## DEPLOYMENT
 
-*   **Frontend URL:** `YOUR_FRONTEND_URL`
+*   **Frontend URL:** `https://verbalist.vercel.app`
 *   **Backend API URL:** `https://verbalist.onrender.com`
 *   **API Docs:** `https://verbalist.onrender.com/docs`
 
