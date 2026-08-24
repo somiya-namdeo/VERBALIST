@@ -8,9 +8,9 @@
 <div align="center">
   <a href="YOUR_FRONTEND_URL">[ Live Demo ]</a>
   <span> &nbsp; | &nbsp; </span>
-  <a href="YOUR_BACKEND_URL">[ Backend API ]</a>
+  <a href="https://verbalist.onrender.com">[ Backend API ]</a>
   <span> &nbsp; | &nbsp; </span>
-  <a href="YOUR_GITHUB_URL">[ GitHub ]</a>
+  <a href="https://github.com/somiya-namdeo/VERBALIST">[ GitHub ]</a>
 </div>
 
 <br />
@@ -264,14 +264,14 @@ VERBALIST/
 ## DEPLOYMENT
 
 *   **Frontend URL:** `YOUR_FRONTEND_URL`
-*   **Backend API URL:** `YOUR_BACKEND_URL`
-*   **API Docs:** `YOUR_BACKEND_URL/docs`
+*   **Backend API URL:** `https://verbalist.onrender.com`
+*   **API Docs:** `https://verbalist.onrender.com/docs`
 
 ## LOCAL DEVELOPMENT
 
 ### 1. Clone the repository
 ```bash
-git clone YOUR_GITHUB_URL
+git clone https://github.com/somiya-namdeo/VERBALIST
 cd VERBALIST
 ```
 
